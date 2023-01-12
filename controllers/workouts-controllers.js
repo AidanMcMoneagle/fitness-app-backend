@@ -8,6 +8,9 @@ const getWorkOutsByUserId = async (req, res, next) => {};
 // then we save the new workout to the db along with the user.
 
 // we will send workout data as json.
+
+// set creator = userId.
+
 const createNewWorkout = async (req, res, next) => {
   const exerciseArray = req.body.map((exercise) => {
     return {
@@ -19,11 +22,12 @@ const createNewWorkout = async (req, res, next) => {
 
   const createdWorkout = new Workout({
     exercises: exerciseArray,
+    creator: req.userData.userId,
   });
 
   createdWorkout.save();
 
-  res.status(201).json(createdWorkout);
+  res.status(201).json({ createdWorkout });
 };
 
 module.exports = { getWorkOutsByUserId, createNewWorkout };

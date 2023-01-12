@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 
-module.exports = (req, res, next) => {
+const checkAuth = (req, res, next) => {
   // OPTIONS request i sent bry Browser prior to all request bar GET requests (browser behaviour)
   if (req.method === "OPTIONS") {
     return next();
@@ -23,3 +23,5 @@ module.exports = (req, res, next) => {
     return next(error);
   }
 };
+
+module.exports = checkAuth;

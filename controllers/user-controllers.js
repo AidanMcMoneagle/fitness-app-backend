@@ -1,7 +1,11 @@
 const User = require("../models/user-model");
+const HttpError = require("../models/http-error");
+
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const signup = async (req, res, next) => {
-  const { name, password, email } = req.body;
+  const { name, email, password } = req.body;
 
   // checking to see if email already exists. Custom error handling. Still have this validation within the user schema.
   let existingUser;
@@ -55,9 +59,8 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
-  res
-    .status(201)
-    .json({ userId: createdUser.id, email: createdUser.email, token });
+  // send the token and userId back to the client. Send the token so we can include in all future requests (allows for authentication) we know who the user is.
+  res.status(201).json({ userId: createdUser.id, token });
 };
 
 const login = async (req, res, next) => {
@@ -80,7 +83,7 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
-  let isValidPassword = false;
+  let isValidPassword;
   try {
     //load hash password from DB and compare with plain text password input. returns a boolean.
     isValidPassword = await bcrypt.compare(password, existingUser.password);
@@ -111,7 +114,7 @@ const login = async (req, res, next) => {
     return next(error);
   }
   //token is sent to client.
-  res.json({ userId: existingUser.id, email: existingUser.email, token });
+  res.json({ userId: existingUser.id, token });
 };
 
 module.exports = { signup, login };

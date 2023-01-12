@@ -24,6 +24,8 @@ app.use("/api/workouts", workoutRoutes);
 
 app.use("/api/users", userRoutes);
 
+// need to add in error handlers
+
 mongoose
   .connect(
     `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.r1k7vjn.mongodb.net/?retryWrites=true&w=majority`
