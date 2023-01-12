@@ -1,6 +1,7 @@
 {
   "env": {
     "DB_USER": "Aidan_McMoneagle",
-    "DB_PASSWORD": "xIFrEtytMJAGHlW4"
+    "DB_PASSWORD": "xIFrEtytMJAGHlW4",
+    "JWT_KEY": "secretJWTKEYAidanMac"
   }
 }

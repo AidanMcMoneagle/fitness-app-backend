@@ -23,7 +23,7 @@ const createNewWorkout = async (req, res, next) => {
 
   createdWorkout.save();
 
-  res.send(createdWorkout);
+  res.status(201).json(createdWorkout);
 };
 
 module.exports = { getWorkOutsByUserId, createNewWorkout };

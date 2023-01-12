@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 
 app.use("/api/workouts", workoutRoutes);
 
-// app.use("/api/users", userRoutes);
+app.use("/api/users", userRoutes);
 
 mongoose
   .connect(

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const workoutSchema = new Schema({
-  //   creator: { type: Schema.Types.ObjectId, required: true, ref: "User" }, need to make sure this added later
+  creator: { type: Schema.Types.ObjectId, required: true, ref: "User" },
   exercises: [
     {
       name: { type: String, required: true },

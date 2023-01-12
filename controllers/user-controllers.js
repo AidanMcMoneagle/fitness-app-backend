@@ -1,3 +1,5 @@
+const User = require("../models/user-model");
+
 const signup = async (req, res, next) => {
   const { name, password, email } = req.body;
 
@@ -31,11 +33,7 @@ const signup = async (req, res, next) => {
     name,
     email,
     password: hashedPassword,
-    image: {
-      path: req.file.path,
-      filename: req.file.filename,
-    },
-    places: [],
+    workouts: [],
   });
 
   try {
@@ -61,3 +59,59 @@ const signup = async (req, res, next) => {
     .status(201)
     .json({ userId: createdUser.id, email: createdUser.email, token });
 };
+
+const login = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    //will throw error if something went wrong with the findOne method. We just use try catch here as good practice whilst carrying out async operations.
+    const error = new HttpError("Signup failed please try again later", 500);
+    return next(error);
+  }
+
+  if (!existingUser) {
+    const error = new HttpError(
+      "Invalid credentials could not log you in",
+      403
+    );
+    return next(error);
+  }
+
+  let isValidPassword = false;
+  try {
+    //load hash password from DB and compare with plain text password input. returns a boolean.
+    isValidPassword = await bcrypt.compare(password, existingUser.password);
+  } catch (e) {
+    const error = new HttpError(
+      "Could not log you in, something went wrong please try again later",
+      500
+    );
+    return next(error);
+  }
+
+  if (!isValidPassword) {
+    const error = new HttpError(
+      "Invalid credentials could not log you in",
+      403
+    );
+    return next(error);
+  }
+
+  //create a token. Encode in the token the userId. This will be extracted to
+  let token;
+  try {
+    token = jwt.sign({ userId: existingUser.id }, process.env.JWT_KEY, {
+      expiresIn: "1h",
+    });
+  } catch (err) {
+    const error = new HttpError("Log in failed please try again later", 500);
+    return next(error);
+  }
+  //token is sent to client.
+  res.json({ userId: existingUser.id, email: existingUser.email, token });
+};
+
+module.exports = { signup, login };
