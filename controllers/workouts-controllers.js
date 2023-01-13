@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Workout = require("../models/workout-model");
 
+// do we need to extract  userId from workout. NO. 
 const getWorkOutsByUserId = async (req, res, next) => {};
 
 // in the post route need to extract data from req.body. Then need to use the new Workout to create a new workout object.
