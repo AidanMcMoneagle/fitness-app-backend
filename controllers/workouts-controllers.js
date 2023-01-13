@@ -45,4 +45,20 @@ const createNewWorkout = async (req, res, next) => {
   res.status(201).json({ createdWorkout });
 };
 
-module.exports = { getWorkoutsByUserId, createNewWorkout };
+const deleteWorkoutById = async (req, res, next) => {
+  const { workoutId } = req.params;
+
+  let deletedWorkout;
+  try {
+    deletedWorkout = await Workout.findByIdAndDelete(workoutId);
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong please try again later",
+      500
+    );
+    return next(error);
+  }
+  res.json({ deletedWorkout });
+};
+
+module.exports = { getWorkoutsByUserId, createNewWorkout, deleteWorkoutById };
