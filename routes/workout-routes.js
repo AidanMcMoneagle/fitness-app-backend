@@ -2,6 +2,7 @@ const express = require("express");
 const {
   createNewWorkout,
   getWorkoutsByUserId,
+  deleteWorkoutById,
 } = require("../controllers/workouts-controllers");
 const checkAuth = require("../middleware/check-auth");
 
@@ -17,5 +18,7 @@ router.get("/", getWorkoutsByUserId);
 // then we save the new workout to the db along with the user.
 
 router.post("/new", createNewWorkout);
+
+router.delete("/:workoutId", deleteWorkoutById);
 
 module.exports = router;
