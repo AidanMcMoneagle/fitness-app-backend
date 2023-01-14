@@ -24,7 +24,13 @@ app.use("/api/workouts", workoutRoutes);
 
 app.use("/api/users", userRoutes);
 
-// need to add in error handlers
+// need to add in custom error handler. we handle all errors in app by throwing an error. each error has a message property containing the error message we want to send back to the client and the status code.
+
+app.use((err, req, res, next) => {
+  //err.message err.statuscode.
+  console.log(err.message);
+  res.status(err.statuscode).json({ message: err.message });
+});
 
 mongoose
   .connect(

@@ -15,7 +15,7 @@ const getWorkoutsByUserId = async (req, res, next) => {
     return next(error);
   }
   // we want to respond with all the data including the id. This allows us to include in the url when we send a request to delete/update a workout.
-  res.json({ foundWorkouts }); // even if foundWorkouts is empty we still send back. Then we handle this on the frontEnd.
+  res.status(201).json({ foundWorkouts }); // even if foundWorkouts is empty we still send back. Then we handle this on the frontEnd.
 };
 
 // in the post route need to extract data from req.body. Then need to use the new Workout to create a new workout object.
