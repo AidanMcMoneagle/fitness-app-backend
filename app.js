@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 
 const workoutRoutes = require("./routes/workout-routes");
 const userRoutes = require("./routes/user-routes");
+const trackWorkoutRoutes = require("./routes/trackworkout-routes");
 
 const app = express();
 
@@ -20,7 +21,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// api endpoints refer to collections. we have a workouts collection, trackworkouts collection and users collection.
+
 app.use("/api/workouts", workoutRoutes);
+
+app.use("/api/trackworkouts", trackWorkoutRoutes);
 
 app.use("/api/users", userRoutes);
 

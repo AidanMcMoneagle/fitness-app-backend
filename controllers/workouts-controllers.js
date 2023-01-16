@@ -1,4 +1,3 @@
-const mongoose = require("mongoose");
 const Workout = require("../models/workout-model");
 
 // do we need to extract  userId from workout. NO.
