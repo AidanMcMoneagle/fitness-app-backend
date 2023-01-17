@@ -6,11 +6,11 @@ const HttpError = require("../models/http-error");
 
 const getWorkoutProgressByWorkoutId = async (req, res, next) => {
   const { workoutId } = req.params;
-
+  console.log(workoutId);
   // dont need to do this. need to find all
   let allTrackedWorkouts;
   try {
-    allTrackedWorkouts = TrackWorkout.find({ workout: workoutId });
+    allTrackedWorkouts = await TrackWorkout.find({ workout: workoutId });
   } catch (e) {
     const error = new HttpError(
       "Fetching workout progress failed please try again later",
@@ -19,7 +19,7 @@ const getWorkoutProgressByWorkoutId = async (req, res, next) => {
     return next(error);
   }
 
-  // we may not want to do this. Might want to handle this on the frontend.
+  // we may not want to do this. Might want to handle this on the frontend. Might not be an array need to check this logic.
   if (allTrackedWorkouts.length === 0) {
     const error = new HttpError(
       "Could not find any workout progress for the provided workout id",
@@ -40,6 +40,9 @@ const trackWorkout = async (req, res, next) => {
   const { workoutId } = req.params;
   const { exerciseWeights } = req.body; // array of objects each object contains the exercise Id and
 
+  // need to ensure
+  console.log(exerciseWeights);
+
   let foundWorkout;
   try {
     foundWorkout = Workout.find({ _id: workoutId });
@@ -59,6 +62,8 @@ const trackWorkout = async (req, res, next) => {
     return next(error);
   }
 
+  // very important that we convert to an array of numbers for the exerciseSets. We will use for calculations.
+
   const workoutWeights = new TrackWorkout({
     workout: workoutId,
     exerciseWeights,
@@ -70,4 +75,4 @@ const trackWorkout = async (req, res, next) => {
   res.status(201).json({ message: "it worked" });
 };
 
-module.exports = { trackWorkout };
+module.exports = { trackWorkout, getWorkoutProgressByWorkoutId };

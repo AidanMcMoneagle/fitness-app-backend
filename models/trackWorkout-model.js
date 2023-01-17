@@ -7,6 +7,7 @@ const trackWorkoutSchema = new Schema({
   exerciseWeights: [
     {
       exerciseId: { type: String, required: true }, // it is an id.
+      exerciseName: { type: String, required: true },
       exerciseSets: { type: Array, required: true }, // equals array of weights user has lifted.
     },
   ],
