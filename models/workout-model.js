@@ -10,8 +10,13 @@ const workoutSchema = new Schema({
       reps: { type: String, required: true },
     },
   ],
+  workoutProgress: [
+    { type: Schema.Types.ObjectId, required: true, ref: "TrackWorkout" },
+  ],
 });
 
 const Workout = mongoose.model("Workout", workoutSchema);
 
 module.exports = Workout;
+
+//each workout will have multiple workout progress objects.
