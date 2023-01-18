@@ -13,6 +13,7 @@ const workoutSchema = new Schema({
   workoutProgress: [
     { type: Schema.Types.ObjectId, required: true, ref: "TrackWorkout" },
   ],
+  isArchived: { type: Boolean, required: true },
 });
 
 const Workout = mongoose.model("Workout", workoutSchema);
