@@ -1,6 +1,7 @@
 const TrackWorkout = require("../models/trackWorkout-model");
 const Workout = require("../models/workout-model");
 const HttpError = require("../models/http-error");
+const mongoose = require("mongoose");
 
 // need a route to get all workouts that have been tracked by the workoutId.
 
@@ -40,12 +41,9 @@ const trackWorkout = async (req, res, next) => {
   const { workoutId } = req.params;
   const { exerciseWeights } = req.body; // array of objects each object contains the exercise Id and
 
-  // need to ensure
-  console.log(exerciseWeights);
-
   let foundWorkout;
   try {
-    foundWorkout = Workout.find({ _id: workoutId });
+    foundWorkout = await Workout.findById(workoutId);
   } catch (e) {
     const error = new HttpError(
       "Submitting workout data failed please try again later",
@@ -62,17 +60,29 @@ const trackWorkout = async (req, res, next) => {
     return next(error);
   }
 
-  // very important that we convert to an array of numbers for the exerciseSets. We will use for calculations.
-
   const workoutWeights = new TrackWorkout({
     workout: workoutId,
     exerciseWeights,
     date: new Date(),
   });
 
-  workoutWeights.save();
+  console.log(workoutWeights);
+  console.log(foundWorkout);
+
+  try {
+    await workoutWeights.save();
+    foundWorkout.workoutProgress.push(workoutWeights);
+    await foundWorkout.save();
+  } catch (err) {
+    console.log(err);
+    const error = new HttpError("Creating place failed, please try again", 500);
+    return next(error);
+  }
 
   res.status(201).json({ message: "it worked" });
 };
 
-module.exports = { trackWorkout, getWorkoutProgressByWorkoutId };
+module.exports = {
+  trackWorkout,
+  getWorkoutProgressByWorkoutId,
+};
