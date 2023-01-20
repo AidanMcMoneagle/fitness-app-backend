@@ -26,7 +26,9 @@ const getWorkoutsByUserId = async (req, res, next) => {
 // set creator = userId.
 
 const createNewWorkout = async (req, res, next) => {
-  const exerciseArray = req.body.map((exercise) => {
+  const { exercises, workoutName } = req.body;
+
+  const exerciseArray = exercises.map((exercise) => {
     return {
       name: exercise.value.exerciseName,
       reps: exercise.value.repetitions,
@@ -35,9 +37,11 @@ const createNewWorkout = async (req, res, next) => {
   });
 
   const createdWorkout = new Workout({
+    workoutName,
     exercises: exerciseArray,
     creator: req.userData.userId,
     isArchived: false,
+    date: new Date(),
   });
 
   createdWorkout.save();

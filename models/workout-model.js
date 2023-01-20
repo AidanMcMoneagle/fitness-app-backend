@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 
 const workoutSchema = new Schema({
   creator: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+  workoutName: { type: String, required: true },
   exercises: [
     {
       name: { type: String, required: true },
@@ -14,6 +15,7 @@ const workoutSchema = new Schema({
     { type: Schema.Types.ObjectId, required: true, ref: "TrackWorkout" },
   ],
   isArchived: { type: Boolean, required: true },
+  date: { type: Date, required: true },
 });
 
 const Workout = mongoose.model("Workout", workoutSchema);
