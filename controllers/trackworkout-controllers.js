@@ -9,6 +9,18 @@ const getWorkoutProgressByWorkoutId = async (req, res, next) => {
   const { workoutId } = req.params;
   console.log(workoutId);
   // dont need to do this. need to find all
+
+  let foundWorkout;
+  try {
+    foundWorkout = await Workout.findById(workoutId);
+  } catch (e) {
+    const error = new HttpError(
+      "Fetching workout progress failed please try again later",
+      500
+    );
+    return next(error);
+  }
+
   let allTrackedWorkouts;
   try {
     allTrackedWorkouts = await TrackWorkout.find({ workout: workoutId });
@@ -29,7 +41,7 @@ const getWorkoutProgressByWorkoutId = async (req, res, next) => {
     return next(error);
   }
 
-  res.status(201).json({ workOutProgress: allTrackedWorkouts });
+  res.status(201).json({ workOutProgress: allTrackedWorkouts, foundWorkout });
 };
 
 // need a route to post tracked workouts. First thing we need to do is check if the workout exists.
