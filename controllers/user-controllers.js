@@ -47,6 +47,8 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
+  console.log(createdUser.id, "userID");
+
   let token;
   try {
     token = jwt.sign(
@@ -85,7 +87,7 @@ const login = async (req, res, next) => {
 
   let isValidPassword;
   try {
-    //load hash password from DB and compare with plain text password input. returns a boolean.
+    //load hash password from DB and compare with plain text password input. returns a boolean(true/false)
     isValidPassword = await bcrypt.compare(password, existingUser.password);
   } catch (e) {
     const error = new HttpError(
@@ -103,7 +105,7 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
-  //create a token. Encode in the token the userId. This will be extracted to
+  //create a token. Encode in the token the userId.
   let token;
   try {
     token = jwt.sign({ userId: existingUser.id }, process.env.JWT_KEY, {

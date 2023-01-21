@@ -3,13 +3,13 @@ const jwt = require("jsonwebtoken");
 const HttpError = require("../models/http-error");
 
 const checkAuth = (req, res, next) => {
-  // OPTIONS request i sent bry Browser prior to all request bar GET requests (browser behaviour)
+  // OPTIONS request is sent by Browser prior to all request bar GET requests (browser behaviour).
   if (req.method === "OPTIONS") {
     return next();
   }
   try {
     // encode tokens in headers of incoming request, we have allowed an authorization header to be included in incoming requests from client. Could also encode tokens in query params however would make URL longer.
-    const token = req.headers.authorization.split(" ")[1]; //convention is to send TOKENS as follows to indicate request bears token.  AuthorIzation: 'Bearer TOKEN'
+    const token = req.headers.authorization.split(" ")[1]; //convention is to send TOKENS as follows to indicate request bears token.  Authorization: 'Bearer TOKEN'
     if (!token) {
       throw new Error("Authentication failed");
     }
