@@ -7,6 +7,15 @@ const jwt = require("jsonwebtoken");
 const signup = async (req, res, next) => {
   const { name, email, password } = req.body;
 
+  if (!name || typeof name !== "string") {
+    return next(new HttpError("Please provide a valid name"));
+  }
+  if (!email || typeof email !== "string") {
+    return next(new HttpError("Please provide a valid email"));
+  }
+  if (!password || typeof password !== "string") {
+    return next(new HttpError("Please provide a valid password"));
+  }
   // checking to see if email already exists. Custom error handling. Still have this validation within the user schema.
   let existingUser;
   try {

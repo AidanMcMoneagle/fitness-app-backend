@@ -1,10 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const dotenv = require("dotenv");
 
 const workoutRoutes = require("./routes/workout-routes");
 const userRoutes = require("./routes/user-routes");
 const trackWorkoutRoutes = require("./routes/trackworkout-routes");
+const connectToDb = require("./utils/db");
+
+dotenv.config();
 
 const app = express();
 
@@ -37,15 +41,4 @@ app.use((err, req, res, next) => {
   res.status(err.statuscode).json({ message: err.message });
 });
 
-mongoose
-  .connect(
-    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.r1k7vjn.mongodb.net/?retryWrites=true&w=majority`
-  )
-  .then(() => {
-    app.listen(process.env.PORT || 5000, () => {
-      console.log("listening on port 5000");
-    });
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+connectToDb(app);
