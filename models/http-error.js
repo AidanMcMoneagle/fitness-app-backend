@@ -1,4 +1,3 @@
-//create new js class (blueprint for gs project)
 class HttpError extends Error {
   constructor(message, statuscode) {
     super();

@@ -1,5 +1,7 @@
 const Workout = require("../models/workout-model");
 const User = require("../models/user-model");
+const TrackWorkout = require("../models/trackWorkout-model");
+const HttpError = require("../models/http-error");
 
 const getWorkoutsByUserId = async (req, res, next) => {
   const { userId } = req.userData;
@@ -17,8 +19,6 @@ const getWorkoutsByUserId = async (req, res, next) => {
   // even if foundWorkouts is an empty array we still send a response back to the client. We then handle this on the frontEnd.
   res.status(201).json({ foundWorkouts });
 };
-
-//Each User has workouts. We also need to edit this route to add workout onto workout array of User.
 
 const createNewWorkout = async (req, res, next) => {
   const { exercises, workoutName } = req.body;
@@ -39,7 +39,28 @@ const createNewWorkout = async (req, res, next) => {
     date: new Date(),
   });
 
-  createdWorkout.save();
+  let foundUser;
+  try {
+    foundUser = await User.findById(req.userData.userId);
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong with creating your workout please try again later",
+      500
+    );
+    return next(error);
+  }
+
+  try {
+    await createdWorkout.save();
+    foundUser.workouts.push(createdWorkout);
+    await foundUser.save();
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong with creating your workout please try again later",
+      500
+    );
+    return next(error);
+  }
 
   res.status(201).json({ createdWorkout });
 };
@@ -102,23 +123,41 @@ const unArchiveWorkout = async (req, res, next) => {
   res.status(201).json({ archivedWorkout });
 };
 
-// when deleting a workout need to also ensure that we also delete from the trackworkouts and also delete the workout from the workouts array in the user model. 
-
+// when deleting a workout need to ensure that we also delete all trackedworkouts and delete the workout from the workouts array in the user model.
 
 const deleteWorkoutById = async (req, res, next) => {
   const { workoutId } = req.params;
 
-  let deletedWorkout;
+  let toBeDeletedWorkout;
   try {
-    deletedWorkout = await Workout.findByIdAndDelete(workoutId);
+    toBeDeletedWorkout = await Workout.findById(workoutId).populate("creator");
+    // does not throw an error if no documents are matched. if check not required to see if user has not tracked any workouts.
+    await TrackWorkout.deleteMany({
+      workout: workoutId,
+    });
   } catch (e) {
+    console.log(e);
     const error = new HttpError(
       "Something went wrong please try again later",
       500
     );
     return next(error);
   }
-  res.json({ deletedWorkout });
+
+  try {
+    await toBeDeletedWorkout.remove();
+    toBeDeletedWorkout.creator.workouts.pull(toBeDeletedWorkout);
+    await toBeDeletedWorkout.creator.save();
+  } catch (e) {
+    console.log(e);
+    const error = new HttpError(
+      "Something went wrong please try again later",
+      500
+    );
+    return next(error);
+  }
+
+  res.json({ toBeDeletedWorkout });
 };
 
 module.exports = {

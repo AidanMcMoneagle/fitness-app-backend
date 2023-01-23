@@ -16,12 +16,11 @@ const signup = async (req, res, next) => {
   if (!password || typeof password !== "string") {
     return next(new HttpError("Please provide a valid password"));
   }
-  // checking to see if email already exists. Custom error handling. Still have this validation within the user schema.
+  // checking to see if email already exists.
   let existingUser;
   try {
     existingUser = await User.findOne({ email: email });
   } catch (err) {
-    //will throw error if something went wrong with the findOne method. We just use try catch here as good practice whilst carrying out async operations.
     const error = new HttpError("Signup failed please try again later", 500);
     return next(error);
   }
@@ -56,8 +55,6 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
-  console.log(createdUser.id, "userID");
-
   let token;
   try {
     token = jwt.sign(
@@ -81,7 +78,6 @@ const login = async (req, res, next) => {
   try {
     existingUser = await User.findOne({ email: email });
   } catch (err) {
-    //will throw error if something went wrong with the findOne method. We just use try catch here as good practice whilst carrying out async operations.
     const error = new HttpError("Signup failed please try again later", 500);
     return next(error);
   }
@@ -114,7 +110,6 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
-  //create a token. Encode in the token the userId.
   let token;
   try {
     token = jwt.sign({ userId: existingUser.id }, process.env.JWT_KEY, {
@@ -124,7 +119,6 @@ const login = async (req, res, next) => {
     const error = new HttpError("Log in failed please try again later", 500);
     return next(error);
   }
-  //token is sent to client.
   res.json({ userId: existingUser.id, token });
 };
 
