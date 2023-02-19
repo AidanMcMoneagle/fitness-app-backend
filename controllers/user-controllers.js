@@ -1,8 +1,10 @@
 const User = require("../models/user-model");
 const HttpError = require("../models/http-error");
+const sendEmail = require("../utils/sendEmail");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const signup = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -122,4 +124,128 @@ const login = async (req, res, next) => {
   res.json({ userId: existingUser.id, token });
 };
 
-module.exports = { signup, login };
+// need to check if the user exists. Then need to send an email
+const forgotPassword = async (req, res, next) => {
+  const { email } = req.body;
+
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong please try again later",
+      500
+    );
+    return next(error);
+  }
+
+  if (!existingUser) {
+    const error = new HttpError("Email could not be sent", 403);
+    return next(error);
+  }
+
+  const resetToken = crypto.randomBytes(20).toString("hex");
+  console.log(resetToken);
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  existingUser.resetPasswordToken = resetPasswordToken;
+  // set password expire to be 10 minutes in future.
+  existingUser.resetPasswordExpire = Date.now() + 10 * (60 * 1000);
+
+  try {
+    await existingUser.save();
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong with resetting password please try again later",
+      500
+    );
+    return next(error);
+  }
+  // need to add this as an environment variable at later point.
+  // the link should be a route on the frontend. Need to make this a
+  const resetUrl = `${process.env.FRONTEND_URL}passwordreset/${resetToken}`;
+  const message = `
+  <h1>You have requested a password reset</h1>
+  <p>Please go to this link to reset your password</p>
+  <a href=${resetUrl} clicktracking=off>${resetUrl}</a>`;
+
+  try {
+    await sendEmail({
+      to: existingUser.email,
+      subject: "Password Reset Request",
+      text: message,
+    });
+    res.status(200).json({ success: true, data: "Email Sent" });
+  } catch (e) {
+    existingUser.resetPasswordToken = undefined;
+    existingUser.resetPasswordExpire = undefined;
+    try {
+      await existingUser.save();
+      const error = new HttpError("Email could not be sent.", 500);
+      return next(error);
+    } catch (e) {
+      const error = new HttpError("Email could not be sent.", 500);
+      return next(error);
+    }
+  }
+};
+
+//need to send the resettoken in the params.
+const resetPassword = async (req, res, next) => {
+  const { resetToken } = req.params;
+  const { password } = req.body;
+
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  let user;
+  try {
+    user = await User.findOne({
+      resetPasswordToken: resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+  } catch (e) {
+    console.log(e);
+    const error = new HttpError(
+      "Something went wrong please try again later",
+      500
+    );
+    next(error);
+  }
+
+  if (!user) {
+    console.log("error");
+    const error = new HttpError("Invalid reset token", 400);
+    return next(error);
+  }
+
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, 12);
+  } catch (e) {
+    const error = new HttpError("Something went wrong please try again", 500);
+    next(error);
+  }
+
+  user.password = hashedPassword;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  try {
+    await user.save();
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong with resetting password please try again later",
+      500
+    );
+    return next(error);
+  }
+
+  res.status(201).json({ success: true, data: "password reset success" });
+};
+
+module.exports = { signup, login, forgotPassword, resetPassword };
