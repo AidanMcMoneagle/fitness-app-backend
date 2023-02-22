@@ -140,7 +140,10 @@ const forgotPassword = async (req, res, next) => {
   }
 
   if (!existingUser) {
-    const error = new HttpError("Email could not be sent", 403);
+    const error = new HttpError(
+      "Sorry no exisiting account was found with this email.",
+      403
+    );
     return next(error);
   }
 
