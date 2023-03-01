@@ -2,7 +2,6 @@ const TrackWorkout = require("../models/trackWorkout-model");
 const Workout = require("../models/workout-model");
 const HttpError = require("../models/http-error");
 
-
 const getWorkoutProgressByWorkoutId = async (req, res, next) => {
   const { workoutId } = req.params;
 
@@ -28,13 +27,16 @@ const getWorkoutProgressByWorkoutId = async (req, res, next) => {
     return next(error);
   }
 
-  res.status(201).json({ workOutProgress: allTrackedWorkouts, foundWorkout });
+  res.status(201).json({
+    workOutProgress: allTrackedWorkouts,
+    workoutName: foundWorkout.workoutName,
+    workoutExercises: foundWorkout.exercises,
+  });
 };
-
 
 const trackWorkout = async (req, res, next) => {
   const { workoutId } = req.params;
-  const { exerciseWeights } = req.body; 
+  const { exerciseWeights } = req.body;
 
   let foundWorkout;
   try {
