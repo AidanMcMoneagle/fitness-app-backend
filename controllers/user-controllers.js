@@ -47,6 +47,10 @@ const signup = async (req, res, next) => {
     name,
     email,
     password: hashedPassword,
+    image: {
+      path: "",
+      fileName: "",
+    },
     workouts: [],
   });
 
@@ -251,4 +255,47 @@ const resetPassword = async (req, res, next) => {
   res.status(201).json({ success: true, data: "password reset success" });
 };
 
-module.exports = { signup, login, forgotPassword, resetPassword };
+// need to know teh user id.
+// need to add the profile pic image url to the user.
+const updateProfile = async (req, res, next) => {
+  const { userId } = req.userData;
+  // console.log("reahced");
+  // console.log(req.file);
+
+  let user;
+  try {
+    user = await User.findById(userId);
+    console.log(user);
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong please try again later",
+      500
+    );
+    return next(error);
+  }
+
+  user.image.path = req.file.path;
+  user.image.fileName = req.file.filename;
+
+  try {
+    await user.save();
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong please try again later",
+      500
+    );
+    return next(error);
+  }
+
+  console.log(user);
+
+  res.status(201).json({ message: "yes it worked", image: user.image.path });
+};
+
+module.exports = {
+  signup,
+  login,
+  forgotPassword,
+  resetPassword,
+  updateProfile,
+};
