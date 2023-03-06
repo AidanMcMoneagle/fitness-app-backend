@@ -74,7 +74,12 @@ const signup = async (req, res, next) => {
   }
 
   // send the token and userId back to the client. Send the token so we can include in all future requests (allows for authentication) we know who the user is.
-  res.status(201).json({ userId: createdUser.id, token });
+  res.status(201).json({
+    userId: createdUser.id,
+    token,
+    userEmail: createdUser.email,
+    userName: createdUser.name,
+  });
 };
 
 const login = async (req, res, next) => {
@@ -125,7 +130,13 @@ const login = async (req, res, next) => {
     const error = new HttpError("Log in failed please try again later", 500);
     return next(error);
   }
-  res.json({ userId: existingUser.id, token });
+  res.json({
+    userId: existingUser.id,
+    token,
+    userImage: existingUser.image.path,
+    userEmail: existingUser.email,
+    userName: existingUser.name,
+  });
 };
 
 // need to check if the user exists. Then need to send an email

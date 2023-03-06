@@ -17,7 +17,9 @@ const getWorkoutsByUserId = async (req, res, next) => {
   }
 
   // even if foundWorkouts is an empty array we still send a response back to the client. We then handle this on the frontEnd.
-  res.status(201).json({ foundWorkouts });
+  res.status(201).json({
+    foundWorkouts,
+  });
 };
 
 const createNewWorkout = async (req, res, next) => {
