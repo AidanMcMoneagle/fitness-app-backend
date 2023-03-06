@@ -33,7 +33,7 @@ app.use("/api/trackworkouts", trackWorkoutRoutes);
 app.use("/api/users", userRoutes);
 
 app.use((err, req, res, next) => {
-  res.status(err.statuscode).json({ message: err.message });
+  res.status(err.statuscode || 500).json({ message: err.message });
 });
 
 connectToDb(app);

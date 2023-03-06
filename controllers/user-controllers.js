@@ -47,6 +47,10 @@ const signup = async (req, res, next) => {
     name,
     email,
     password: hashedPassword,
+    image: {
+      path: "",
+      fileName: "",
+    },
     workouts: [],
   });
 
@@ -70,7 +74,12 @@ const signup = async (req, res, next) => {
   }
 
   // send the token and userId back to the client. Send the token so we can include in all future requests (allows for authentication) we know who the user is.
-  res.status(201).json({ userId: createdUser.id, token });
+  res.status(201).json({
+    userId: createdUser.id,
+    token,
+    userEmail: createdUser.email,
+    userName: createdUser.name,
+  });
 };
 
 const login = async (req, res, next) => {
@@ -121,7 +130,13 @@ const login = async (req, res, next) => {
     const error = new HttpError("Log in failed please try again later", 500);
     return next(error);
   }
-  res.json({ userId: existingUser.id, token });
+  res.json({
+    userId: existingUser.id,
+    token,
+    userImage: existingUser.image.path,
+    userEmail: existingUser.email,
+    userName: existingUser.name,
+  });
 };
 
 // need to check if the user exists. Then need to send an email
@@ -251,4 +266,47 @@ const resetPassword = async (req, res, next) => {
   res.status(201).json({ success: true, data: "password reset success" });
 };
 
-module.exports = { signup, login, forgotPassword, resetPassword };
+// need to know teh user id.
+// need to add the profile pic image url to the user.
+const updateProfile = async (req, res, next) => {
+  const { userId } = req.userData;
+  // console.log("reahced");
+  // console.log(req.file);
+
+  let user;
+  try {
+    user = await User.findById(userId);
+    console.log(user);
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong please try again later",
+      500
+    );
+    return next(error);
+  }
+
+  user.image.path = req.file.path;
+  user.image.fileName = req.file.filename;
+
+  try {
+    await user.save();
+  } catch (e) {
+    const error = new HttpError(
+      "Something went wrong please try again later",
+      500
+    );
+    return next(error);
+  }
+
+  console.log(user);
+
+  res.status(201).json({ message: "yes it worked", image: user.image.path });
+};
+
+module.exports = {
+  signup,
+  login,
+  forgotPassword,
+  resetPassword,
+  updateProfile,
+};
