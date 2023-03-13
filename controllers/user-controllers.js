@@ -1,3 +1,5 @@
+const cloudinary = require("cloudinary").v2;
+
 const User = require("../models/user-model");
 const HttpError = require("../models/http-error");
 const sendEmail = require("../utils/sendEmail");
@@ -266,13 +268,10 @@ const resetPassword = async (req, res, next) => {
   res.status(201).json({ success: true, data: "password reset success" });
 };
 
-// need to know teh user id.
-// need to add the profile pic image url to the user.
+
 const updateProfile = async (req, res, next) => {
   const { userId } = req.userData;
-  // console.log("reahced");
-  // console.log(req.file);
-
+  
   let user;
   try {
     user = await User.findById(userId);
@@ -283,6 +282,15 @@ const updateProfile = async (req, res, next) => {
       500
     );
     return next(error);
+  }
+
+  // delete old profile pic if exists. 
+  if (user.image.path) {
+    try {
+      await cloudinary.uploader.destroy(user.image.fileName);
+    } catch (e) {
+      console.log("Could not delete image from cloudinary");
+    }
   }
 
   user.image.path = req.file.path;
@@ -297,8 +305,6 @@ const updateProfile = async (req, res, next) => {
     );
     return next(error);
   }
-
-  console.log(user);
 
   res.status(201).json({ message: "yes it worked", image: user.image.path });
 };

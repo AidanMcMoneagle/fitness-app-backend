@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const workoutRoutes = require("./routes/workout-routes");
 const userRoutes = require("./routes/user-routes");
 const trackWorkoutRoutes = require("./routes/trackworkout-routes");
+
 const connectToDb = require("./utils/db");
 
 dotenv.config();
