@@ -27,6 +27,6 @@ router.put("/resetpassword/:resetToken", resetPassword);
 router.use(checkAuth);
 
 //fileUpload.single() accepts a single file with the name fieldname and the single file will be stored in req.files
-router.post("/updateprofile", upload.single("image"), updateProfile);
+router.patch("/updateprofile", upload.single("image"), updateProfile);
 
 module.exports = router;

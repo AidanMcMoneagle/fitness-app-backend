@@ -268,10 +268,11 @@ const resetPassword = async (req, res, next) => {
   res.status(201).json({ success: true, data: "password reset success" });
 };
 
-
 const updateProfile = async (req, res, next) => {
   const { userId } = req.userData;
-  
+
+  const { email, name } = req.body;
+
   let user;
   try {
     user = await User.findById(userId);
@@ -284,17 +285,46 @@ const updateProfile = async (req, res, next) => {
     return next(error);
   }
 
-  // delete old profile pic if exists. 
-  if (user.image.path) {
+  if (email) {
+    let existingEmail;
     try {
-      await cloudinary.uploader.destroy(user.image.fileName);
-    } catch (e) {
-      console.log("Could not delete image from cloudinary");
+      existingEmail = await User.findOne({ email: email });
+    } catch (err) {
+      const error = new HttpError(
+        "Something went wrong please try again later",
+        500
+      );
+      return next(error);
     }
+
+    if (existingEmail) {
+      const error = new HttpError(
+        "Profile could not be updated, the provided email is already associated with an account.",
+        403
+      );
+      return next(error);
+    }
+
+    user.email = email;
   }
 
-  user.image.path = req.file.path;
-  user.image.fileName = req.file.filename;
+  if (name) {
+    user.name = name;
+  }
+
+  if (req.file) {
+    // delete old profile pic if exists. If we cannot delete pic do not want to stop user from updating profile.
+    if (user.image.path) {
+      try {
+        await cloudinary.uploader.destroy(user.image.fileName);
+      } catch (e) {
+        console.log("Could not delete image from cloudinary");
+      }
+    }
+
+    user.image.path = req.file.path;
+    user.image.fileName = req.file.filename;
+  }
 
   try {
     await user.save();
@@ -306,7 +336,12 @@ const updateProfile = async (req, res, next) => {
     return next(error);
   }
 
-  res.status(201).json({ message: "yes it worked", image: user.image.path });
+  res.status(201).json({
+    message: "yes it worked",
+    image: user.image.path,
+    email: user.email,
+    name: user.name,
+  });
 };
 
 module.exports = {
