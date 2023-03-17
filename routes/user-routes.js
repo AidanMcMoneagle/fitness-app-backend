@@ -12,10 +12,6 @@ const router = express.Router();
 const upload = require("../middleware/file-upload");
 const checkAuth = require("../middleware/check-auth");
 
-// const storage = require("../utils/cloudinary");
-// // set storage destination to the storage object.
-// const upload = multer({ storage: storage });
-
 router.post("/signup", signup);
 
 router.post("/login", login);
