@@ -16,9 +16,9 @@ router.use(checkAuth);
 
 router.get("/", getWorkoutsByUserId);
 
-router.put("/archive/:workoutId", archiveWorkout);
+router.patch("/archive/:workoutId", archiveWorkout);
 
-router.put("/unarchive/:workoutId", unArchiveWorkout);
+router.patch("/unarchive/:workoutId", unArchiveWorkout);
 
 router.post("/new", createNewWorkout);
 

@@ -18,7 +18,7 @@ router.post("/login", login);
 
 router.post("/forgotpassword", forgotPassword);
 
-router.put("/resetpassword/:resetToken", resetPassword);
+router.patch("/resetpassword/:resetToken", resetPassword);
 
 router.use(checkAuth);
 
