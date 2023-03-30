@@ -30,6 +30,7 @@ const createNewWorkout = async (req, res, next) => {
       name: exercise.value.exerciseName,
       reps: exercise.value.repetitions,
       sets: exercise.value.sets,
+      instructions: exercise.value.exerciseInstructions,
     };
   });
 
